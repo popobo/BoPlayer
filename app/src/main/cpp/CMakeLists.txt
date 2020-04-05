@@ -50,7 +50,9 @@ add_library( # Sets the name of the library.
         GLVideoView.cpp
         XTexture.cpp
         XShader.cpp
-        XEGL.cpp)
+        XEGL.cpp
+        IResample.cpp
+        FFResample.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

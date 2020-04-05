@@ -87,7 +87,8 @@ XData FFDecode::recvFrame() {
         xData.size = av_get_bytes_per_sample((AVSampleFormat)frame->format) * frame->nb_samples * frame->channels;
     }
 
-    memcpy(xData.datas, frame->data, sizeof(xData.data));
+    //遇到问题记录, 这边把xData.datas写成xData.data导致uv数据没有复制, 只有y, 有图像运行但是有绿色滤镜
+    memcpy(xData.datas, frame->data, sizeof(xData.datas));
 
     return xData;
 }

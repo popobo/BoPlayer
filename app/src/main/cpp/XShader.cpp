@@ -29,12 +29,14 @@ static const char *fragYUV420P = GET_STR(
             vec3 yuv;//vec3含有三个元素的向量
             vec3 rgb;
             //这变的rgb相当于yuv
-            yuv.r = texture2D(yTexture, vTexCoord).r;
-            yuv.g = texture2D(uTexture, vTexCoord).r - 0.5;
-            yuv.b = texture2D(uTexture, vTexCoord).r - 0.5;
+            yuv.r = texture2D(yTexture,vTexCoord).r;
+            yuv.g = texture2D(uTexture,vTexCoord).r - 0.5;
+            //bug_fix:这边的vTexture写成了uTexture导致颜色出现偏差
+            //yuv.b = texture2D(uTexture,vTexCoord).r - 0.5;
+            yuv.b = texture2D(vTexture,vTexCoord).r - 0.5;
             rgb = mat3(1.0, 1.0, 1.0,
                        0.0, -0.39465, 2.03211,
-                       1.13983, -0.5863, 0.0) * yuv;
+                       1.13983, -0.58060, 0.0) * yuv;
             //输出像素颜色
             gl_FragColor = vec4(rgb, 1.0);
         }
@@ -105,10 +107,10 @@ bool XShader::init() {
 
     //加入三维顶点数据 两个三角形组成正方形 用static保证程序运行过程中一直存在
     static float vers[] = {
-            1.0f, -1.0f, 0.0f,
-            -1.0f, -1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f
+            1.0F, -1.0F, 0.0F,
+            -1.0F, -1.0F, 0.0F,
+            1.0F, 1.0F, 0.0F,
+            -1.0F, 1.0F, 0.0F
     };
     //获取shader当中的顶点变量,并使其有效
     GLuint apos = (GLuint)glGetAttribLocation(program, "aPosition");
@@ -118,10 +120,10 @@ bool XShader::init() {
 
     //加入材质坐标数据
     static float txts[] = {
-            1.0f, 0.0f,//右下
-            0.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f
+            1.0F, 0.0F,//右下
+            0.0F, 0.0F,
+            1.0F, 1.0F,
+            0.0, 1.0
     };
     GLuint atex = (GLuint)glGetAttribLocation(program, "aTexCoord");
     glEnableVertexAttribArray(atex);

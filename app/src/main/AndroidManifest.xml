@@ -4,7 +4,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!--   android Q对于文件读写引入了新特性，在这个版本中，READ_EXTERNAL_STORAGE和WRITE_EXTERNAL_STORAGE均受到了限制，无法再像之前的版本直接获取到文件。如果希望恢复之前的权限逻辑，可以在manifest文件中设置：android:requestLegacyExternalStorage="true" -->
     <application
+        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

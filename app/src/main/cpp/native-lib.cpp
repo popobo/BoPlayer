@@ -36,7 +36,8 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     IDecode *vdecode = new FFDecode();
     vdecode->open(demux->getVPara());
 
-    IDecode *adecode = new FFDecode();
+    IDecode
+    *adecode = new FFDecode();
     adecode->open(demux->getAPara());
 
     //添加观察者

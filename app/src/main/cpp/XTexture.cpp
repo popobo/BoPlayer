@@ -30,7 +30,12 @@ public:
         sh.getTexture(0, width, height, data[0]);//y
         sh.getTexture(1, width/2, height/2, data[1]);//u
         sh.getTexture(2, width/2, height/2, data[2]);//v
-
+        if(nullptr == data[1]){
+            XLOGE("nullptr == data[1]");
+        }
+        if(nullptr == data[2]){
+            XLOGE("nullptr == data[1]");
+        }
         sh.draw();
         XEGL::get()->draw();
     }
