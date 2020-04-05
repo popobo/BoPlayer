@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.widget.TextView;
+import android.view.Window;
+import android.view.WindowManager;
+import android.content.pm.ActivityInfo;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,6 +19,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        //去掉标题栏
+//        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+//        //全屏.隐藏状态
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //屏幕为横屏
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         // Example of a call to a native method
         TextView tv = findViewById(R.id.sample_text);

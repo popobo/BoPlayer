@@ -13,6 +13,14 @@ public:
     EGLSurface surface = EGL_NO_SURFACE;
     EGLContext context = EGL_NO_CONTEXT;
 
+    virtual void draw(){
+        if (display == EGL_NO_DISPLAY || surface == EGL_NO_SURFACE){
+            XLOGE("display or surface is NULL");
+            return;
+        }
+        eglSwapBuffers(display, surface);
+    }
+
     virtual bool init(void *win){
         ANativeWindow *anwin = (ANativeWindow *)win;
         //初始化EGL
@@ -22,13 +30,13 @@ public:
             XLOGE("eglGetDisplay failed");
             return false;
         }
-        XLOGE("eglGetDisplay successfully");
+        XLOGI("eglGetDisplay successfully");
         //初始化display
         if(EGL_TRUE != eglInitialize(display, 0, 0)){
             XLOGE("eglInitialize failed");
             return false;
         }
-        XLOGE("eglInitialize successfully");
+        XLOGI("eglInitialize successfully");
         //3.获取配置并创建surface
         EGLint configSpec[] = {
                 EGL_RED_SIZE, 8,
@@ -43,7 +51,7 @@ public:
             XLOGE("eglChooseConfig failed");
             return false;
         }
-        XLOGE("eglChooseConfig successfully");
+        XLOGI("eglChooseConfig successfully");
 
         surface = eglCreateWindowSurface(display, config, anwin, NULL);
 
@@ -56,12 +64,12 @@ public:
             XLOGE("eglCreateContext failed");
             return false;
         }
-        XLOGE("eglCreateContext successfully");
+        XLOGI("eglCreateContext successfully");
 
         if(EGL_TRUE != eglMakeCurrent(display, surface, surface, context)){
             XLOGE("eglMakeCurrent failed");
         }
-        XLOGE("eglMakeCurrent successfully");
+        XLOGI("eglMakeCurrent successfully");
 
         return true;
     }

@@ -5,6 +5,9 @@
 #include "IDecode.h"
 #include "FFDecode.h"
 #include "XEGL.h"
+#include "XShader.h"
+#include "IVideoView.h"
+#include "GLVideoView.h"
 #include <android/native_window_jni.h>
 
 
@@ -14,6 +17,8 @@ public:
 //        XLOGI("testObs update data size %d", xData.size);
     }
 };
+
+IVideoView *view = nullptr;
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_bo_boplay_MainActivity_stringFromJNI(
@@ -26,7 +31,7 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     testObs *tObs = new testObs();
     IDemux *demux = new FFDemux();
 //    demux->addObs(tObs);
-    demux->Open("/sdcard/test.mp4");
+    demux->Open("/sdcard/1080.mp4");
 
     IDecode *vdecode = new FFDecode();
     vdecode->open(demux->getVPara());
@@ -37,6 +42,8 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     //添加观察者
     demux->addObs(vdecode);
     demux->addObs(adecode);
+    view = new GLVideoView();
+    vdecode->addObs(view);
 
     demux->start();
     vdecode->start();
@@ -54,7 +61,10 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_bo_boplay_XPlay_InitView(JNIEnv *env, jobject thiz, jobject surface) {
+Java_com_bo_boplay_XPlay_initView(JNIEnv *env, jobject thiz, jobject surface) {
     ANativeWindow *win = ANativeWindow_fromSurface(env,surface);
-    XEGL::get()->init(win);
+    view->setRender(win);
+    //XEGL::get()->init(win);
+    //XShader shader;
+    //shader.init();
 }

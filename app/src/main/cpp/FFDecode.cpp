@@ -80,9 +80,14 @@ XData FFDecode::recvFrame() {
     xData.data = (unsigned char*)frame;
     if (AVMEDIA_TYPE_VIDEO == codecContext->codec_type){
         xData.size = (frame->linesize[0] + frame->linesize[1] + frame->linesize[2]) * frame->height;
+        xData.width = frame->width;
+        xData.height = frame->height;
     }else if (AVMEDIA_TYPE_AUDIO == codecContext->codec_type){
         //样本字节数 * 单通道样本数 * 通道数
         xData.size = av_get_bytes_per_sample((AVSampleFormat)frame->format) * frame->nb_samples * frame->channels;
     }
+
+    memcpy(xData.datas, frame->data, sizeof(xData.data));
+
     return xData;
 }
