@@ -2,11 +2,13 @@
 #include <string>
 #include "FFDemux.h"
 #include "XLog.h"
+#include "IDecode.h"
+#include "FFDecode.h"
 
 class testObs:public IObserver{
 public:
     virtual void update(XData xData){
-        XLOGI("testObs update data size %d", xData.size);
+//        XLOGI("testObs update data size %d", xData.size);
     }
 };
 
@@ -19,12 +21,26 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     ///////////////////////
     //测试用代码
     testObs *tObs = new testObs();
-    IDemux *de = new FFDemux();
-    de->addObs(tObs);
-    de->Open("/sdcard/test.mp4");
-    de->start();
-    XSleep(3000);
-    de->stop();
+    IDemux *demux = new FFDemux();
+//    demux->addObs(tObs);
+    demux->Open("/sdcard/test.mp4");
+
+    IDecode *vdecode = new FFDecode();
+    vdecode->open(demux->getVPara());
+
+    IDecode *adecode = new FFDecode();
+    adecode->open(demux->getAPara());
+
+    //添加观察者
+    demux->addObs(vdecode);
+    demux->addObs(adecode);
+
+    demux->start();
+    vdecode->start();
+    adecode->start();
+
+    //    XSleep(3000);
+//    demux->stop();
     //    for(;;){
 //        XData xData = de->Read();
 //        XLOGI("Read data size is %d", xData.size);
