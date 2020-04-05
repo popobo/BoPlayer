@@ -4,6 +4,9 @@
 #include "XLog.h"
 #include "IDecode.h"
 #include "FFDecode.h"
+#include "XEGL.h"
+#include <android/native_window_jni.h>
+
 
 class testObs:public IObserver{
 public:
@@ -48,4 +51,10 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
 
     ///////////////////////
     return env->NewStringUTF(hello.c_str());
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bo_boplay_XPlay_InitView(JNIEnv *env, jobject thiz, jobject surface) {
+    ANativeWindow *win = ANativeWindow_fromSurface(env,surface);
+    XEGL::get()->init(win);
 }
