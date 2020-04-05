@@ -8,6 +8,10 @@
 void IDemux::main() {
     while(!isExit){
         XData xData = Read();
+        if (xData.size > 0){
+            //通知观察者
+            Notify(xData);
+        }
 //        XLOGI("IDemux Read %d", xData.size);
 //        if(xData.size <= 0){
 //            break;

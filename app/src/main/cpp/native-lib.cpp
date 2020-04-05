@@ -3,6 +3,13 @@
 #include "FFDemux.h"
 #include "XLog.h"
 
+class testObs:public IObserver{
+public:
+    virtual void update(XData xData){
+        XLOGI("testObs update data size %d", xData.size);
+    }
+};
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_bo_boplay_MainActivity_stringFromJNI(
         JNIEnv *env,
@@ -11,7 +18,9 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
 
     ///////////////////////
     //测试用代码
+    testObs *tObs = new testObs();
     IDemux *de = new FFDemux();
+    de->addObs(tObs);
     de->Open("/sdcard/test.mp4");
     de->start();
     XSleep(3000);
