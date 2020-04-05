@@ -13,10 +13,14 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     //测试用代码
     IDemux *de = new FFDemux();
     de->Open("/sdcard/test.mp4");
-    for(;;){
-        XData xData = de->Read();
-        XLOGI("Read data size is %d", xData.size);
-    }
+    de->start();
+    XSleep(3000);
+    de->stop();
+    //    for(;;){
+//        XData xData = de->Read();
+//        XLOGI("Read data size is %d", xData.size);
+//    }
+
     ///////////////////////
     return env->NewStringUTF(hello.c_str());
 }
