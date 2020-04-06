@@ -12,7 +12,6 @@ struct AVFrame;
 
 class FFDecode : public IDecode {
 public:
-
     static void initHard(void *vm);
 
     virtual bool open(XParameter parameter, bool isHard = false);
