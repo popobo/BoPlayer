@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         //全屏.隐藏状态
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //屏幕为横屏
+        //屏幕为横屏, 这个会导致onCreate被调用两次, 在setRequestedOrientation后 activity会先销毁原来的Activity然后重新创建, 简单来说就是会走两遍onCreate, 解决方法:<activity android:name=".MainActivity"> 改为 <activity android:name=".MainActivity" android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation">
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         setContentView(R.layout.activity_main);

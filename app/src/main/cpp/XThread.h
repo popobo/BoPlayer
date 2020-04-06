@@ -12,7 +12,7 @@ void XSleep(int ms);
 class XThread {
 public:
     //启动线程
-    virtual void start();
+    virtual bool start();
     //通过isExit变量安全停止线程(不一定成功), 在开发中不应该操作线程句柄直接让其停止, 风险大, 因为不知道程序执行到哪
     virtual void stop();
     //入口主函数

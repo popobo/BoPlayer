@@ -12,6 +12,7 @@
 #include "FFResample.h"
 #include "IAudioPlay.h"
 #include "SLAudioPlay.h"
+#include "IPlayer.h"
 #include <android/native_window_jni.h>
 
 
@@ -22,15 +23,18 @@ public:
     }
 };
 
+IVideoView *view = nullptr;
+
 extern "C"
 JNIEXPORT
 jint JNI_OnLoad(JavaVM *vm, void *res){
     //初始化硬件编码接口
     FFDecode::initHard(vm);
+
     return JNI_VERSION_1_6;
 }
 
-IVideoView *view = nullptr;
+static bool isFirstRun = true;
 
 extern "C" JNIEXPORT jstring JNICALL
 //这个函数可能被调用两次导致声音重音
@@ -38,6 +42,7 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
         JNIEnv *env,
         jobject /* this */) {
     std::string hello = "Hello from C++";
+    XLOGI("Java_com_bo_boplay_MainActivity_stringFromJNI");
 
     ///////////////////////
     //测试用代码
@@ -49,8 +54,7 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     IDecode *vdecode = new FFDecode();
     vdecode->open(demux->getVPara(), true);
 
-    IDecode
-    *adecode = new FFDecode();
+    IDecode *adecode = new FFDecode();
     adecode->open(demux->getAPara());
 
     //添加观察者
@@ -80,6 +84,7 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
 //    }
 
     ///////////////////////
+
     return env->NewStringUTF(hello.c_str());
 }
 extern "C"

@@ -15,11 +15,12 @@ void XSleep(int ms){
 }
 
 //启动线程
-void XThread::start() {
+bool XThread::start() {
     isExit = false;
     thread th(&XThread::threadMain, this);
     //当前线程放弃对新建线程的控制, 防止对象被清空时, 新建线程出错
     th.detach();
+    return true;
 }
 
 void XThread::stop() {

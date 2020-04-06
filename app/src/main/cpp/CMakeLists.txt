@@ -54,7 +54,8 @@ add_library( # Sets the name of the library.
         IResample.cpp
         FFResample.cpp
         IAudioPlay.cpp
-        SLAudioPlay.cpp)
+        SLAudioPlay.cpp
+        IPlayer.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
