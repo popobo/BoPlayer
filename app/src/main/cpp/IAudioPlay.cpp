@@ -6,7 +6,7 @@
 #include "XLog.h"
 
 void IAudioPlay::update(XData xData) {
-    XLOGI("IAudioPlay::update xData size = %d", xData.size);
+//    XLOGI("IAudioPlay::update xData size = %d", xData.size);
     //压入缓冲队列
     if (xData.size <= 0 || !xData.data){
         return;

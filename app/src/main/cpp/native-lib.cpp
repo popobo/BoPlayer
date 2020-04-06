@@ -22,9 +22,18 @@ public:
     }
 };
 
+extern "C"
+JNIEXPORT
+jint JNI_OnLoad(JavaVM *vm, void *res){
+    //初始化硬件编码接口
+    FFDecode::initHard(vm);
+    return JNI_VERSION_1_6;
+}
+
 IVideoView *view = nullptr;
 
 extern "C" JNIEXPORT jstring JNICALL
+//这个函数可能被调用两次导致声音重音
 Java_com_bo_boplay_MainActivity_stringFromJNI(
         JNIEnv *env,
         jobject /* this */) {
@@ -38,7 +47,7 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     demux->Open("/sdcard/1080.mp4");
 
     IDecode *vdecode = new FFDecode();
-    vdecode->open(demux->getVPara());
+    vdecode->open(demux->getVPara(), true);
 
     IDecode
     *adecode = new FFDecode();

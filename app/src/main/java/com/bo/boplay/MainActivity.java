@@ -21,17 +21,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-//        //去掉标题栏
-//        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-//        //全屏.隐藏状态
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //在setContentView(R.layout.activity_main);之前调用
+        //去掉标题栏
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        //全屏.隐藏状态
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //屏幕为横屏
-
-        verifyStoragePermissions(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
+        setContentView(R.layout.activity_main);
+        verifyStoragePermissions(this);
 
         // Example of a call to a native method
         TextView tv = findViewById(R.id.sample_text);

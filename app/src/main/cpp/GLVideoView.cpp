@@ -17,7 +17,7 @@ void GLVideoView::render(XData xData) {
 
     if(!tex){
         tex = XTexture::create();
-        tex->init(view);
+        tex->init(view, (XTextureType)xData.format);
     }
 
     tex->draw(xData.datas, xData.width, xData.height);

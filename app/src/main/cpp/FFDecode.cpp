@@ -6,10 +6,11 @@
 #include "XLog.h"
 
 extern "C"{
-#include "include/libavcodec/avcodec.h"
+#include "libavcodec/avcodec.h"
+#include "libavcodec/jni.h"
 }
 
-bool FFDecode::open(XParameter parameter) {
+bool FFDecode::open(XParameter parameter, bool isHard) {
 
     if(nullptr == parameter.para){
         return false;
@@ -17,10 +18,15 @@ bool FFDecode::open(XParameter parameter) {
     AVCodecParameters *para = parameter.para;
     //1.查找解码器
     AVCodec *avc = avcodec_find_decoder(para->codec_id);
-    if(!avc){
-        XLOGI("avcodec_find_decoder %d failed!", para->codec_id);
+    if (isHard){
+        //如果移植到其他平台代码要做调整
+        avc = avcodec_find_decoder_by_name("h264_mediacodec");
     }
-    XLOGI("avcodec_find_decoder %d successfully!", para->codec_id);
+
+    if(!avc){
+        XLOGI("avcodec_find_decoder %d failed! %d", para->codec_id, isHard);
+    }
+    XLOGI("avcodec_find_decoder %d successfully! %d", para->codec_id, isHard);
     //2.创建解码器上下文, 并复制参数
     codecContext = avcodec_alloc_context3(avc);
     avcodec_parameters_to_context(codecContext, para);
@@ -88,7 +94,12 @@ XData FFDecode::recvFrame() {
     }
 
     //遇到问题记录, 这边把xData.datas写成xData.data导致uv数据没有复制, 只有y, 有图像运行但是有绿色滤镜
+    xData.format = frame->format;
     memcpy(xData.datas, frame->data, sizeof(xData.datas));
 
     return xData;
+}
+
+void FFDecode::initHard(void *vm) {
+    av_jni_set_java_vm(vm, 0);
 }

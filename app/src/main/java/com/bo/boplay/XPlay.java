@@ -20,6 +20,7 @@ public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
         //初始化OpenGL EGL显示
         initView(holder.getSurface());
 
+        //android 8.0 以上的版本需要添加该语句才能正常播放
         setRenderer(this);
     }
 
