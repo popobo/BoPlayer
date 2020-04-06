@@ -6,8 +6,16 @@
 #define BOPLAY_FFRESAMPLE_H
 
 
-class FFResample {
+#include "IResample.h"
 
+struct SwrContext;
+
+class FFResample : public IResample{
+public:
+    virtual bool open(XParameter xParameterIn, XParameter xParameterOut = XParameter());
+    virtual XData resample(XData xDataIn);
+protected:
+    SwrContext *actx;
 };
 
 

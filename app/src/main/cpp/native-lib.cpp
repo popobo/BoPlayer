@@ -8,6 +8,8 @@
 #include "XShader.h"
 #include "IVideoView.h"
 #include "GLVideoView.h"
+#include "IResample.h"
+#include "FFResample.h"
 #include <android/native_window_jni.h>
 
 
@@ -45,6 +47,10 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     demux->addObs(adecode);
     view = new GLVideoView();
     vdecode->addObs(view);
+
+    IResample *resample = new FFResample();
+    resample->open(demux->getAPara());
+    adecode->addObs(resample);
 
     demux->start();
     vdecode->start();

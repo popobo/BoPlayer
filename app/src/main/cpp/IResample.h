@@ -6,8 +6,17 @@
 #define BOPLAY_IRESAMPLE_H
 
 
-class IResample {
+#include "IObserver.h"
+#include "XParameter.h"
 
+class IResample : public IObserver{
+public:
+    virtual bool open(XParameter xParameterIn, XParameter xParameterOut = XParameter()) = 0;
+    virtual XData resample(XData xDataIn) = 0;
+    virtual void update(XData xDataIn);
+
+    int outChannels = 2;
+    int outFormat = 1;
 };
 
 

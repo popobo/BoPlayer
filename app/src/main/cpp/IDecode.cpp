@@ -27,11 +27,11 @@ void IDecode::main() {
                     break;
                 }
                 //发送数据给观察者
-                this->Notify(frame);
+                this->notify(frame);
             }
         }
         //因为这是从xDataList取出的?
-        xData.Drop();
+        xData.drop();
         xDataListMutex.unlock();
     }
 

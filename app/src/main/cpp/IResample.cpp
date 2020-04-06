@@ -3,3 +3,10 @@
 //
 
 #include "IResample.h"
+
+void IResample::update(XData xDataIn) {
+    XData xDataOUT = resample(xDataIn);
+    if (xDataOUT.size > 0){
+        this->notify(xDataOUT);
+    }
+}

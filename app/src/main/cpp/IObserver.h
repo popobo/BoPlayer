@@ -20,7 +20,7 @@ public:
     void addObs(IObserver *observer);
 
     //通知所有观察者(线程安全)
-    void Notify(XData xData);
+    void notify(XData xData);
 
 protected:
     std::vector<IObserver *> observers;

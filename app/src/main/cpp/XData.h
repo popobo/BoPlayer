@@ -5,8 +5,14 @@
 #ifndef BOPLAY_XDATA_H
 #define BOPLAY_XDATA_H
 
+enum XDataType{
+    AVPACKET_TYPE = 0,
+    UNCHAR_TYPE = 1
+};
 
 struct XData {
+    XDataType type = AVPACKET_TYPE;
+
     unsigned char *data = 0;
     unsigned char *datas[8] = {0};
     int size = 0;
@@ -14,7 +20,8 @@ struct XData {
     int height = 0;
 
     bool isAudio = false;
-    void Drop();
+    bool alloc(int size, const char *dataIn = 0);
+    void drop();
 };
 
 
