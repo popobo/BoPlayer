@@ -15,9 +15,9 @@ bool FFResample::open(XParameter xParameterIn, XParameter xParameterOut) {
     if (xParameterIn.para->format)
     actx = swr_alloc();
     actx = swr_alloc_set_opts(actx,
-                              av_get_default_channel_layout(2),
+                              av_get_default_channel_layout(xParameterOut.channels),
                               AV_SAMPLE_FMT_S16,
-                              xParameterIn.para->sample_rate,
+                              xParameterOut.sample_rate,
                               av_get_default_channel_layout(xParameterIn.para->channels),
                               (AVSampleFormat)xParameterIn.para->format,
                               xParameterIn.para->sample_rate, 0, 0);
@@ -58,7 +58,7 @@ XData FFResample::resample(XData xDataIn) {
         xDataOut.drop();
         return XData();
     }
-    XLOGI("swr_convert successfully %d", len);
+//    XLOGI("swr_convert successfully %d", len);
 
     return xDataOut;
 }

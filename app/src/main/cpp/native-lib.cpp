@@ -10,6 +10,8 @@
 #include "GLVideoView.h"
 #include "IResample.h"
 #include "FFResample.h"
+#include "IAudioPlay.h"
+#include "SLAudioPlay.h"
 #include <android/native_window_jni.h>
 
 
@@ -49,8 +51,13 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
     vdecode->addObs(view);
 
     IResample *resample = new FFResample();
-    resample->open(demux->getAPara());
+    XParameter outPara = demux->getAPara();
+    resample->open(demux->getAPara(), outPara);
     adecode->addObs(resample);
+
+    IAudioPlay *audioPlay = new SLAudioPlay();
+    audioPlay->startPlay(outPara);
+    resample->addObs(audioPlay);
 
     demux->start();
     vdecode->start();
