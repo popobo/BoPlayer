@@ -12,7 +12,7 @@ struct AVFormatContext;
 class FFDemux: public IDemux{
 public:
     //打开文件或者流媒体 rtmp http rtsp
-    virtual bool Open(const char *url);
+    virtual bool open(const char *url);
 
     //获取视频参数
     virtual XParameter getVPara();

@@ -7,7 +7,7 @@
 extern "C"{
 #include "libavformat/avformat.h"
 }
-bool FFDemux::Open(const char *url) {
+bool FFDemux::open(const char *url) {
     XLOGI("open url %s begin", url);
     int re = avformat_open_input(&ic, url, 0, 0);
     if (re != 0){
