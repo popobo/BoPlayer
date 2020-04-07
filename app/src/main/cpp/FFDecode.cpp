@@ -96,10 +96,10 @@ XData FFDecode::recvFrame() {
     //遇到问题记录, 这边把xData.datas写成xData.data导致uv数据没有复制, 只有y, 有图像运行但是有绿色滤镜
     xData.format = frame->format;
     memcpy(xData.datas, frame->data, sizeof(xData.datas));
-
+    xData.pts = (int)frame->pts;
     return xData;
 }
 
 void FFDecode::initHard(void *vm) {
-    av_jni_set_java_vm(vm, 0);
+    av_jni_set_java_vm(vm, nullptr);
 }

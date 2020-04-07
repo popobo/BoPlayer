@@ -7,6 +7,12 @@
 extern "C"{
 #include "libavformat/avformat.h"
 }
+
+//分数转为浮点数
+static  double r2d(AVRational r){
+    return r.num == 0 || r.den == 0 ? 0.0 : (double)r.num/(double)r.den;
+}
+
 bool FFDemux::open(const char *url) {
     XLOGI("open url %s begin", url);
     int re = avformat_open_input(&ic, url, 0, 0);
@@ -97,6 +103,11 @@ XData FFDemux::Read() {
         av_packet_free(&pkt);
         return XData();
     }
+
+    //转换pts(ms)
+    pkt->pts = pkt->pts * (r2d(ic->streams[pkt->stream_index]->time_base)) * 1000;
+    pkt->dts = pkt->dts * (r2d(ic->streams[pkt->stream_index]->time_base)) * 1000;
+    xData.pts = (int)pkt->pts;
 
     return xData;
 }

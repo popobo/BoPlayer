@@ -8,6 +8,7 @@
 
 #include "XThread.h"
 #include "XParameter.h"
+#include <mutex>
 
 //用户在调用IPlay时不用关注各个模块的头文件, 只需要提供给用户一个IPlay头文件
 class IDemux;
@@ -35,6 +36,9 @@ public:
     //音频输出参数配置, 这边不是使用指针必须引入头文件
     XParameter xParameterOut;
 protected:
+    //用作音视频同步
+    void main();
+    std::mutex mux;
     IPlayer(){}
 };
 

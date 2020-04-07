@@ -13,13 +13,15 @@ enum XDataType{
 struct XData {
     XDataType type = AVPACKET_TYPE;
 
-
     unsigned char *data = 0;
     unsigned char *datas[8] = {0};
     int size = 0;
     int width = 0;
     int height = 0;
     int format = 0;
+
+    int pts = 0;
+
     bool isAudio = false;
     bool alloc(int size, const char *dataIn = 0);
     void drop();

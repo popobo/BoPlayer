@@ -33,6 +33,5 @@ Java_com_bo_boplay_MainActivity_stringFromJNI(
         jobject /* this */) {
     std::string hello = "Hello from C++";
 
-
     return env->NewStringUTF(hello.c_str());
 }

@@ -59,6 +59,6 @@ XData FFResample::resample(XData xDataIn) {
         return XData();
     }
 //    XLOGI("swr_convert successfully %d", len);
-
+    xDataOut.pts = xDataIn.pts;
     return xDataOut;
 }

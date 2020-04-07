@@ -17,7 +17,9 @@ IPlayer *IPlayer::get(unsigned char index) {
 
 bool IPlayer::open(const char *url) {
     //解封装
+    mux.lock();
     if(!demux || !demux->open(url)){
+        mux.unlock();
         XLOGE("demux->open %s failed!", url);
         return false;
     }
@@ -37,12 +39,15 @@ bool IPlayer::open(const char *url) {
     if (!resample || !resample->open(demux->getAPara(), xParameterOut)){
         XLOGE("resample->open failed!");
     }
-
+    mux.unlock();
     return true;
 }
 
 bool IPlayer::start() {
+    mux.lock();
     if (!demux || !demux->start()){
+        //每个return语句都要有锁的释放
+        mux.unlock();
         XLOGE("demux->start failed");
         return false;
     }
@@ -56,12 +61,33 @@ bool IPlayer::start() {
         videoDecoder->start();
     }
 
-
+    mux.unlock();
+    XThread::start();
     return true;
 }
 
 void IPlayer::initView(void *win) {
     if (videoView){
         videoView->setRender(win);
+    }
+}
+
+void IPlayer::main() {
+    while(!isExit){
+        mux.lock();
+
+        if (!audioPlay || !videoDecoder){
+            //等待初始化完成再进行同步
+            mux.unlock();
+            XSleep(1);
+            continue;
+        }
+
+        //同步
+        //获取音频的pts 告诉视频
+        videoDecoder->synPts = audioPlay->pts;
+
+        mux.unlock();
+        XSleep(1);
     }
 }

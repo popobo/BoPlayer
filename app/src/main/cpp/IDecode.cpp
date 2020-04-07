@@ -5,9 +5,20 @@
 #include "IDecode.h"
 #include "XLog.h"
 
+//业务逻辑代码
 void IDecode::main() {
     while(!isExit){
         xDataListMutex.lock();
+        //判断音视频同步
+        if (!isAudio && synPts > 0){
+            //当音频时间小于视频时间时, 等音频
+            if (synPts < pts){
+                xDataListMutex.unlock();
+                XSleep(1);
+                continue;
+            }
+        }
+
         if (xDataList.empty()){
             xDataListMutex.unlock();
             XSleep(1);
@@ -23,9 +34,12 @@ void IDecode::main() {
             while(!isExit){
                 //获取解码数据
                 XData frame = recvFrame();
+                //解码音频会有许多frame.data == nullptr
                 if (!frame.data){
                     break;
                 }
+                //注意这条语句的位置,有许多空数据
+                pts = frame.pts;
                 //发送数据给观察者
                 this->notify(frame);
             }
