@@ -5,6 +5,7 @@
 #include "XEGL.h"
 #include <android/native_window_jni.h>
 #include <EGL/egl.h>
+#include <mutex>
 #include "XLog.h"
 
 class CXEGL : public XEGL{
@@ -12,27 +13,56 @@ public:
     EGLDisplay display = EGL_NO_DISPLAY;
     EGLSurface surface = EGL_NO_SURFACE;
     EGLContext context = EGL_NO_CONTEXT;
+    std::mutex mux;
+
+    virtual void close(){
+        mux.lock();
+        //把display和surface的绑定去掉
+        if (display == EGL_NO_DISPLAY){
+            mux.unlock();
+            return;
+        }
+        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        if (surface != EGL_NO_SURFACE){
+            eglDestroySurface(display, surface);
+        }
+        if (context != EGL_NO_CONTEXT){
+            eglDestroyContext(display, context);
+        }
+        eglTerminate(display);
+        display = EGL_NO_DISPLAY;
+        surface = EGL_NO_SURFACE;
+        context = EGL_NO_CONTEXT;
+        mux.unlock();
+    }
 
     virtual void draw(){
+        mux.lock();
         if (display == EGL_NO_DISPLAY || surface == EGL_NO_SURFACE){
+            mux.unlock();
             XLOGE("display or surface is NULL");
             return;
         }
         eglSwapBuffers(display, surface);
+        mux.unlock();
     }
 
     virtual bool init(void *win){
         ANativeWindow *anwin = (ANativeWindow *)win;
+        close();
+        mux.lock();
         //初始化EGL
         //1.获取EGL display对象 显示设备
         display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
         if(EGL_NO_DISPLAY == display){
+            mux.unlock();
             XLOGE("eglGetDisplay failed");
             return false;
         }
         XLOGI("eglGetDisplay successfully");
         //初始化display
         if(EGL_TRUE != eglInitialize(display, 0, 0)){
+            mux.unlock();
             XLOGE("eglInitialize failed");
             return false;
         }
@@ -48,6 +78,7 @@ public:
         EGLConfig config;
         EGLint configNum;
         if(EGL_TRUE != eglChooseConfig(display, configSpec, &config, 1, &configNum)){
+            mux.unlock();
             XLOGE("eglChooseConfig failed");
             return false;
         }
@@ -61,6 +92,7 @@ public:
         };
         context = eglCreateContext(display, config, EGL_NO_CONTEXT, ctxAttr);
         if (EGL_NO_CONTEXT == context){
+            mux.unlock();
             XLOGE("eglCreateContext failed");
             return false;
         }
@@ -70,7 +102,7 @@ public:
             XLOGE("eglMakeCurrent failed");
         }
         XLOGI("eglMakeCurrent successfully");
-
+        mux.unlock();
         return true;
     }
 };
@@ -79,4 +111,8 @@ public:
 XEGL *XEGL::get() {
     static CXEGL egl;
     return &egl;
+}
+
+void XEGL::close() {
+
 }

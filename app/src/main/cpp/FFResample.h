@@ -13,9 +13,11 @@ struct SwrContext;
 class FFResample : public IResample{
 public:
     virtual bool open(XParameter xParameterIn, XParameter xParameterOut = XParameter());
+    virtual void close();
     virtual XData resample(XData xDataIn);
 protected:
     SwrContext *actx;
+    std::mutex actxMutex;
 };
 
 

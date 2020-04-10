@@ -17,6 +17,9 @@ public:
     virtual bool startPlay(XParameter xParameter) = 0;
     //获取缓冲数据, 如果没有则阻塞
     virtual XData getData();
+
+    virtual void close() = 0;
+
     //最大缓冲
     int maxFrame = 100;
 

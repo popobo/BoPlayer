@@ -46,6 +46,7 @@ void SLAudioPlay::playCall(void *bufQueue) {
     if (!bufQueue){
         return;
     }
+
     SLAndroidSimpleBufferQueueItf bufQueueGot = (SLAndroidSimpleBufferQueueItf)bufQueue;
 //    XLOGI("SLAudioPlay::playCall")
     //阻塞
@@ -59,8 +60,11 @@ void SLAudioPlay::playCall(void *bufQueue) {
     }
     //在这边用buf存储, 是因为xData在playCall调用结束后就销毁了, 但OpenSL内部播放时还需要要用到这部分数据, 这样就避免访问已销毁地址
     memcpy(buf, xData.data, xData.size);
+    mux.lock();
     (*bufQueueGot)->Enqueue(bufQueueGot, buf, xData.size);
+    mux.unlock();
     xData.drop();
+
 }
 
 static void PcmCall(SLAndroidSimpleBufferQueueItf bf, void *contex)
@@ -75,6 +79,8 @@ static void PcmCall(SLAndroidSimpleBufferQueueItf bf, void *contex)
 
 bool SLAudioPlay::startPlay(XParameter xParameter) {
 
+    close();
+    mux.lock();
     //1.创建引擎
     en = CreateSL();
     if(en){
@@ -88,12 +94,14 @@ bool SLAudioPlay::startPlay(XParameter xParameter) {
     SLresult ret;
     ret = (*en)->CreateOutputMix(en, &mix, 0, 0, 0);
     if (ret != SL_RESULT_SUCCESS){
+        mux.unlock();
         XLOGE("(*en)->CreateOutputMix failed!");
         return false;
     }
     //实例化混音器 阻塞式地等待创建
     ret = (*mix)->Realize(mix, SL_BOOLEAN_FALSE);
     if (ret != SL_RESULT_SUCCESS){
+        mux.unlock();
         XLOGE("(*en)->CreateOutputMix failed!");
         return false;
     }
@@ -124,6 +132,7 @@ bool SLAudioPlay::startPlay(XParameter xParameter) {
     const SLboolean req[] = {SL_BOOLEAN_TRUE};//表示这个接口是开放还是关闭
     ret = (*en)->CreateAudioPlayer(en, &player, &ds, &audioSink, sizeof(ids)/ sizeof(SLInterfaceID), ids ,req);
     if (ret != SL_RESULT_SUCCESS){
+        mux.unlock();
         XLOGE("(*en)->CreateAudioPlayer failed!");
         return false;
     }else{
@@ -134,6 +143,7 @@ bool SLAudioPlay::startPlay(XParameter xParameter) {
     //获取player接口
     ret = (*player)->GetInterface(player, SL_IID_PLAY, &playerInterface);
     if (ret != SL_RESULT_SUCCESS){
+        mux.unlock();
         XLOGE("(*player)->GetInterface playerInterface failed!");
         return false;
     }else{
@@ -142,6 +152,7 @@ bool SLAudioPlay::startPlay(XParameter xParameter) {
     //获取队列接口
     ret = (*player)->GetInterface(player, SL_IID_BUFFERQUEUE, &pcmQueue);
     if (ret != SL_RESULT_SUCCESS){
+        mux.unlock();
         XLOGE("(*player)->GetInterface pcmQueue failed!");
         return false;
     }else{
@@ -156,7 +167,7 @@ bool SLAudioPlay::startPlay(XParameter xParameter) {
     (*pcmQueue)->Enqueue(pcmQueue, "", 1);
 
     XLOGI("SLAudioPlay::startPlay successfully");
-
+    mux.unlock();
     return true;
 }
 
@@ -167,5 +178,30 @@ SLAudioPlay::SLAudioPlay() {
 SLAudioPlay::~SLAudioPlay() {
     delete buf;
     buf = nullptr;
+}
+
+void SLAudioPlay::close() {
+    mux.lock();
+    //停止播放
+    if (playerInterface && (*playerInterface)){
+        (*playerInterface)->SetPlayState(playerInterface, SL_PLAYSTATE_STOPPED);
+    }
+    //清理播放队列
+    if (pcmQueue && (*pcmQueue)){
+        (*pcmQueue)->Clear(pcmQueue);
+    }
+    //销毁player对象
+    if (player && (*player)){
+        (*player)->Destroy(player);
+    }
+    //销毁混音器
+    if (mix && (*mix)){
+        (*mix)->Destroy(mix);
+    }
+    //销毁播放器, 播放器销毁后其对应接口也销毁了
+     if (engineSL && (*engineSL)){
+         (*engineSL)->Destroy(engineSL);
+     }
+    mux.unlock();
 }
 

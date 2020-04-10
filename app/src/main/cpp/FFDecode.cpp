@@ -12,6 +12,7 @@ extern "C"{
 
 bool FFDecode::open(XParameter parameter, bool isHard) {
 
+    close();
     if(nullptr == parameter.para){
         return false;
     }
@@ -28,6 +29,7 @@ bool FFDecode::open(XParameter parameter, bool isHard) {
     }
     XLOGI("avcodec_find_decoder %d successfully! %d", para->codec_id, isHard);
     //2.创建解码器上下文, 并复制参数
+    codecContextMutex.lock();
     codecContext = avcodec_alloc_context3(avc);
     avcodec_parameters_to_context(codecContext, para);
 
@@ -36,6 +38,7 @@ bool FFDecode::open(XParameter parameter, bool isHard) {
     //3.打开解码器
     int re = avcodec_open2(codecContext, 0, 0);
     if (re != 0){
+        codecContextMutex.unlock();
         char buf[1024] = {0};
         av_strerror(re, buf, sizeof(buf) - 1);
         XLOGE("%s", buf);
@@ -48,6 +51,7 @@ bool FFDecode::open(XParameter parameter, bool isHard) {
     } else if (AVMEDIA_TYPE_AUDIO == codecContext->codec_type){
         this->isAudio = true;
     }
+    codecContextMutex.unlock();
     return true;
 }
 
@@ -58,19 +62,23 @@ bool FFDecode::sendPacket(XData xData) {
     }
 
     //类成员, 多线程访问的变量
+    codecContextMutex.lock();
     if (!codecContext){
+        codecContextMutex.unlock();
         return false;
     }
 
     int re = avcodec_send_packet(codecContext, (AVPacket *)xData.data);
     if (re != 0){
+        codecContextMutex.unlock();
         return false;
     }
-
+    codecContextMutex.unlock();
     return true;
 }
 
 XData FFDecode::recvFrame() {
+    codecContextMutex.lock();
     if (!codecContext){
         return XData();
     }
@@ -80,6 +88,7 @@ XData FFDecode::recvFrame() {
     //再次调用会复用上次空间, 线程不安全
     int re = avcodec_receive_frame(codecContext, frame);
     if (re != 0){
+        codecContextMutex.unlock();
         return XData();
     }
     XData xData;
@@ -92,14 +101,28 @@ XData FFDecode::recvFrame() {
         //样本字节数 * 单通道样本数 * 通道数
         xData.size = av_get_bytes_per_sample((AVSampleFormat)frame->format) * frame->nb_samples * frame->channels;
     }
-
     //遇到问题记录, 这边把xData.datas写成xData.data导致uv数据没有复制, 只有y, 有图像运行但是有绿色滤镜
     xData.format = frame->format;
     memcpy(xData.datas, frame->data, sizeof(xData.datas));
     xData.pts = (int)frame->pts;
+    codecContextMutex.unlock();
+    pts = xData.pts;
     return xData;
 }
 
 void FFDecode::initHard(void *vm) {
     av_jni_set_java_vm(vm, nullptr);
+}
+
+void FFDecode::close() {
+    codecContextMutex.lock();
+    pts = 0;
+    if (frame){
+        av_frame_free(&frame);
+    }
+    if (codecContext){
+        avcodec_close(codecContext);
+        avcodec_free_context(&codecContext);
+    }
+    codecContextMutex.unlock();
 }
