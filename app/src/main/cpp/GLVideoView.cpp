@@ -23,3 +23,13 @@ void GLVideoView::render(XData xData) {
     tex->draw(xData.datas, xData.width, xData.height);
 
 }
+
+void GLVideoView::close() {
+    mux.lock();
+    if (tex){
+        //由谁创建由谁清理
+        tex->drop();
+        tex = nullptr;
+    }
+    mux.unlock();
+}

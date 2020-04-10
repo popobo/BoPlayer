@@ -110,10 +110,13 @@ static GLuint initShader(const char *code, GLint type){
 }
 
 bool XShader::init(XShaderType type) {
+    close();
+    mux.lock();
     //顶点和片元shader初始化
     //顶点shader初始化
     vsh = initShader(vertexShader, GL_VERTEX_SHADER);
     if (0 == vsh){
+        mux.unlock();
         XLOGE("initShader GL_VERTEX_SHADER failed!");
         return false;
     }
@@ -130,12 +133,14 @@ bool XShader::init(XShaderType type) {
             fsh = initShader(fragNV21, GL_FRAGMENT_SHADER);
             break;
         default:
+            mux.unlock();
             XLOGE("XSHADER format is not supported");
             return false;
     }
 
 
     if (0 == fsh){
+        mux.unlock();
         XLOGE("initShader GL_FRAGMENT_SHADER failed!");
         return false;
     }
@@ -144,6 +149,7 @@ bool XShader::init(XShaderType type) {
     //创建渲染程序
     program = glCreateProgram();
     if (0 == program){
+        mux.unlock();
         XLOGE("glCreateProgram failed!");
         return false;
     }
@@ -156,6 +162,7 @@ bool XShader::init(XShaderType type) {
     GLint status;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status != GL_TRUE){
+        mux.unlock();
         XLOGE("glLinkProgram failed!");
         return false;
     }
@@ -200,8 +207,7 @@ bool XShader::init(XShaderType type) {
             break;
     }
 
-
-
+    mux.unlock();
     XLOGI("初始化shader成功!");
     return true;
 }
@@ -214,6 +220,7 @@ void XShader::getTexture(unsigned int index, int width, int height, unsigned cha
         format = GL_LUMINANCE_ALPHA;
     }
 
+    mux.lock();
     if (0 == texts[index]){
         //材质初始化
         glGenTextures(1, &texts[index]);
@@ -240,14 +247,39 @@ void XShader::getTexture(unsigned int index, int width, int height, unsigned cha
     glBindTexture(GL_TEXTURE_2D, texts[index]);
     //替换纹理内容
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, buf);
-
+    mux.unlock();
 }
 
 void XShader::draw() {
+    mux.lock();
     if (!program){
+        mux.unlock();
         return;
     }
 
     //三维绘制 vers要保证存在
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mux.unlock();
+}
+
+void XShader::close() {
+    mux.lock();
+    //释放shader
+    if(program){
+        glDeleteProgram(program);
+    }
+    if (fsh){
+        glDeleteShader(fsh);
+    }
+    if (vsh){
+        glDeleteShader(vsh);
+    }
+    //释放材质
+    for (int i = 0; i < sizeof(texts)/ sizeof(unsigned int); i++) {
+        if (texts[i]){
+            glDeleteTextures(1,&texts[i]);
+        }
+        texts[i] = 0;
+    }
+    mux.unlock();
 }

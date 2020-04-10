@@ -5,6 +5,8 @@
 #ifndef BOPLAY_XSHADER_H
 #define BOPLAY_XSHADER_H
 
+#include <mutex>
+
 //重新定义枚举
 enum XShaderType{
     XSHADER_YUV420P = 0,//yyyy u v 软解码和虚拟机
@@ -15,6 +17,7 @@ enum XShaderType{
 class XShader {
 public:
     virtual bool init(XShaderType type = XSHADER_YUV420P);
+    virtual void close();
     //获取材质并映射到内存  isA是否有透明通道
     virtual void getTexture(unsigned int index, int width, int height, unsigned char *buf, bool isA = false);
 
@@ -24,8 +27,9 @@ protected:
     unsigned int vsh = 0;
     unsigned int fsh = 0;
     unsigned int program = 0;
-
     unsigned  int texts[100] = {0};
+
+    std::mutex mux;
 };
 
 
