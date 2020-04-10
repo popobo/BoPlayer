@@ -12,6 +12,9 @@ jint JNI_OnLoad(JavaVM *vm, void *res){
     ///////////////////////
     IPlayerProxy::get()->init(vm);
 
+    IPlayerProxy::get()->open("/sdcard/test.mp4");
+    IPlayerProxy::get()->start();
+
     IPlayerProxy::get()->open("/sdcard/1080.mp4");
     IPlayerProxy::get()->start();
     ///////////////////////

@@ -115,6 +115,8 @@ void FFDecode::initHard(void *vm) {
 }
 
 void FFDecode::close() {
+    //清空解码缓冲
+    IDecode::clear();
     codecContextMutex.lock();
     pts = 0;
     if (frame){

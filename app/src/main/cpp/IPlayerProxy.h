@@ -19,6 +19,7 @@ public:
     virtual bool open(const char *url);
     virtual bool start();
     virtual void initView(void  *win);
+    virtual void close();
 
 protected:
     IPlayerProxy(){}

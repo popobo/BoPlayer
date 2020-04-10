@@ -181,6 +181,7 @@ SLAudioPlay::~SLAudioPlay() {
 }
 
 void SLAudioPlay::close() {
+    IAudioPlay::clear();
     mux.lock();
     //停止播放
     if (playerInterface && (*playerInterface)){

@@ -16,6 +16,7 @@ IPlayer *IPlayer::get(unsigned char index) {
 }
 
 bool IPlayer::open(const char *url) {
+    close();
     //解封装
     mux.lock();
     if(!demux || !demux->open(url)){
@@ -45,21 +46,25 @@ bool IPlayer::open(const char *url) {
 
 bool IPlayer::start() {
     mux.lock();
-    if (!demux || !demux->start()){
-        //每个return语句都要有锁的释放
-        mux.unlock();
-        XLOGE("demux->start failed");
-        return false;
-    }
-    if (audioDecoder){
-        audioDecoder->start();
-    }
     if (audioPlay){
         audioPlay->startPlay(xParameterOut);
     }
     if (videoDecoder){
         videoDecoder->start();
     }
+    if (audioDecoder){
+        audioDecoder->start();
+    }
+    //demux notify的数据被视频扔掉了
+    if (!demux || !demux->start()){
+        //每个return语句都要有锁的释放
+        mux.unlock();
+        XLOGE("demux->start failed");
+        return false;
+    }
+
+
+
 
     mux.unlock();
     XThread::start();
@@ -90,4 +95,52 @@ void IPlayer::main() {
         mux.unlock();
         XSleep(1);
     }
+}
+
+void IPlayer::close() {
+
+    mux.lock();
+    //1.先关闭主体线程,再清理观察者
+    //同步线程
+    XThread::stop();
+    //解封装
+    if(demux){
+        demux->stop();
+    }
+    //解码
+    if (videoDecoder){
+        videoDecoder->stop();
+    }
+    if(audioDecoder){
+        audioDecoder->stop();
+    }
+
+    //2.清理缓冲队列
+    if (videoDecoder){
+        videoDecoder->clear();
+    }
+    if (audioDecoder){
+        audioDecoder->clear();
+    }
+    if(audioPlay){
+        audioPlay->clear();
+    }
+
+    //3.清理资源
+    if(audioPlay){
+        audioPlay->close();
+    }
+    if(videoView){
+        videoView->close();
+    }
+    if (videoDecoder){
+        videoDecoder->close();
+    }
+    if(audioDecoder){
+        audioDecoder->close();
+    }
+    if(demux){
+        demux->close();
+    }
+    mux.unlock();
 }

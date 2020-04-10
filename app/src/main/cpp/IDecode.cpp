@@ -52,6 +52,7 @@ void IDecode::main() {
 }
 
 void IDecode::update(XData xData) {
+    //如果是音频则返回, 因为音频要重采样
     if (xData.isAudio != isAudio){
         return;
     }
@@ -67,4 +68,16 @@ void IDecode::update(XData xData) {
         XSleep(1);
     }
 
+}
+
+void IDecode::clear() {
+    xDataListMutex.lock();
+    while (!xDataList.empty()){
+        xDataList.front().drop();
+        xDataList.pop_front();
+    }
+    pts = 0;
+    synPts = 0;
+
+    xDataListMutex.unlock();
 }

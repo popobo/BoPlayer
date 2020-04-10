@@ -19,6 +19,7 @@ public:
     virtual XData getData();
 
     virtual void close() = 0;
+    virtual void clear();
 
     //最大缓冲
     int maxFrame = 100;
