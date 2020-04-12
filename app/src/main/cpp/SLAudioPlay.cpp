@@ -168,7 +168,7 @@ bool SLAudioPlay::startPlay(XParameter xParameter) {
     (*playerInterface)->SetPlayState(playerInterface, SL_PLAYSTATE_PLAYING);
     //启动队列回调
     (*pcmQueue)->Enqueue(pcmQueue, "", 1);
-
+    isExit = false;
     XLOGI("SLAudioPlay::startPlay successfully");
     mux.unlock();
     return true;

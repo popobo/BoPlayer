@@ -94,6 +94,7 @@ XParameter FFDemux::getAPara() {
 XData FFDemux::Read() {
     icMutex.lock();
     if (!ic){
+        icMutex.unlock();
         return XData();
     }
     XData xData;

@@ -23,6 +23,8 @@ public:
     //从线程中获取解码结果, 并不会阻塞, 再次调用会复用上次空间, 线程不安全
     virtual XData recvFrame();
 
+    virtual void clear();
+
 protected:
     AVCodecContext *codecContext = 0;
     AVFrame *frame = 0;

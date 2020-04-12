@@ -128,3 +128,14 @@ void FFDecode::close() {
     }
     codecContextMutex.unlock();
 }
+
+void FFDecode::clear() {
+    IDecode::clear();
+    mux.lock();
+    //清理ffmpeg缓冲
+    if (codecContext){
+        avcodec_flush_buffers(codecContext);
+    }
+
+    mux.unlock();
+}

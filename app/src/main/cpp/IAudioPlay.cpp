@@ -27,6 +27,9 @@ void IAudioPlay::update(XData xData) {
 
 XData IAudioPlay::getData() {
     XData xData;
+
+    //因为IAudioPlay没启用线程, 所以isRuning没有置true, 按照XThread::stop()逻辑, isExit无法置为true
+    isRunning = true;
     while (!isExit){
         if (isPaused()){
             XSleep(1);
@@ -45,7 +48,7 @@ XData IAudioPlay::getData() {
         framesMutex.unlock();
         XSleep(1);
     }
-
+    isRunning = false;
     //未获取数据异常
     return xData;
 }
