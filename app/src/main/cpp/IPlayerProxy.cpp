@@ -10,6 +10,8 @@ bool IPlayerProxy::open(const char *url) {
     bool re = false;
     mux.lock();
     if(player){
+        //传递硬解码
+        player->isHardDecoder = isHardDecoder;
         re = player->open(url);
     }
     mux.unlock();
@@ -52,4 +54,42 @@ void IPlayerProxy::close() {
         player->close();
     }
     mux.unlock();
+}
+
+double IPlayerProxy::playPos() {
+    double pos = 0.0;
+    mux.lock();
+    if (player){
+        pos = player->playPos();
+    }
+    mux.unlock();
+    return pos;
+}
+
+bool IPlayerProxy::seek(double pos) {
+    bool re = false;
+    mux.lock();
+    if (player){
+        re = player->seek(pos);
+    }
+    mux.unlock();
+    return re;
+}
+
+void IPlayerProxy::setPause(bool isPauseIn) {
+    mux.lock();
+    if(player){
+        player->setPause(isPauseIn);
+    }
+    mux.unlock();
+}
+
+bool IPlayerProxy::isPaused() {
+    bool re = false;
+    mux.lock();
+    if(player){
+        re = player->isPaused();
+    }
+    mux.unlock();
+    return re;
 }

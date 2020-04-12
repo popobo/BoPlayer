@@ -12,9 +12,9 @@
 static  SLObjectItf engineSL = nullptr;
 static  SLEngineItf en = nullptr;
 static  SLObjectItf mix = nullptr;
-static SLObjectItf player = nullptr;
-static SLPlayItf playerInterface = nullptr;
-static SLAndroidSimpleBufferQueueItf pcmQueue = nullptr;
+static  SLObjectItf player = nullptr;
+static  SLPlayItf playerInterface = nullptr;
+static  SLAndroidSimpleBufferQueueItf pcmQueue = nullptr;
 
 static SLEngineItf CreateSL(){
     SLresult  ret;
@@ -61,7 +61,10 @@ void SLAudioPlay::playCall(void *bufQueue) {
     //在这边用buf存储, 是因为xData在playCall调用结束后就销毁了, 但OpenSL内部播放时还需要要用到这部分数据, 这样就避免访问已销毁地址
     memcpy(buf, xData.data, xData.size);
     mux.lock();
-    (*bufQueueGot)->Enqueue(bufQueueGot, buf, xData.size);
+    if(bufQueueGot && (*bufQueueGot))
+    {
+        (*bufQueueGot)->Enqueue(bufQueueGot, buf, xData.size);
+    }
     mux.unlock();
     xData.drop();
 
@@ -200,9 +203,15 @@ void SLAudioPlay::close() {
         (*mix)->Destroy(mix);
     }
     //销毁播放器, 播放器销毁后其对应接口也销毁了
-     if (engineSL && (*engineSL)){
-         (*engineSL)->Destroy(engineSL);
-     }
+    if (engineSL && (*engineSL)){
+        (*engineSL)->Destroy(engineSL);
+    }
+    SLObjectItf engineSL = nullptr;
+    SLEngineItf en = nullptr;
+    SLObjectItf mix = nullptr;
+    SLObjectItf player = nullptr;
+    SLPlayItf playerInterface = nullptr;
+    SLAndroidSimpleBufferQueueItf pcmQueue = nullptr;
     mux.unlock();
 }
 

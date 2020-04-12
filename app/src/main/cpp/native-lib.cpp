@@ -29,8 +29,25 @@ Java_com_bo_boplay_OpenUrl_open(JNIEnv *env, jobject thiz, jstring url) {
     const char *curl = env->GetStringUTFChars(url, 0);
 
     IPlayerProxy::get()->open(curl);
-
     IPlayerProxy::get()->start();
 
     env->ReleaseStringUTFChars(url, curl);
+}
+
+extern "C"
+JNIEXPORT jdouble JNICALL
+Java_com_bo_boplay_MainActivity_playPos(JNIEnv *env, jobject thiz) {
+    return  IPlayerProxy::get()->playPos();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bo_boplay_MainActivity_seek(JNIEnv *env, jobject thiz, jdouble pos) {
+    IPlayerProxy::get()->seek(pos);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bo_boplay_XPlay_playOrPause(JNIEnv *env, jobject thiz) {
+    IPlayerProxy::get()->setPause(!IPlayerProxy::get()->isPaused());
 }

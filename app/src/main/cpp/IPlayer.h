@@ -25,6 +25,11 @@ public:
     virtual void initView(void *win);
     virtual void close();
 
+    //获取当前的播放进度 0.0-1.0
+    virtual double playPos();
+    virtual bool seek(double pos);
+    virtual void setPause(bool isPauseIn);
+
     IDemux *demux = nullptr;
     IDecode *videoDecoder = nullptr;
     IDecode *audioDecoder = nullptr;

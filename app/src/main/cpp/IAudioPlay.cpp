@@ -28,6 +28,11 @@ void IAudioPlay::update(XData xData) {
 XData IAudioPlay::getData() {
     XData xData;
     while (!isExit){
+        if (isPaused()){
+            XSleep(1);
+            continue;
+        }
+
         framesMutex.lock();
         if (!frames.empty()){
             //有数据返回

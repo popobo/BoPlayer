@@ -17,10 +17,19 @@ public:
     virtual void stop();
     //入口主函数
     virtual void main(){}
+    //暂停接口
+    virtual void setPause(bool isPauseIn);
+
+    virtual bool isPaused(){
+        isPausing = isPause;
+        return isPause;
+    }
 
 protected:
     bool isExit = false;
     bool isRunning = false;
+    bool isPause = false;
+    bool isPausing = false;
 private:
     void threadMain();
 };

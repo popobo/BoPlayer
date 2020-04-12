@@ -9,7 +9,8 @@
 #include "IPlayer.h"
 #include <mutex>
 
-class IPlayerProxy : IPlayer{
+//这边继承时忘记添加public 导致父类的public方法变成private
+class IPlayerProxy : public IPlayer{
 public:
     static  IPlayerProxy *get(){
         static IPlayerProxy iPlayerProxy;
@@ -20,7 +21,10 @@ public:
     virtual bool start();
     virtual void initView(void  *win);
     virtual void close();
-
+    virtual double playPos();
+    virtual bool seek(double pos);
+    virtual void setPause(bool isPauseIn);
+    virtual bool isPaused();
 protected:
     IPlayerProxy(){}
     IPlayer *player = nullptr;

@@ -2,19 +2,22 @@ package com.bo.boplay;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.util.AttributeSet;
+import android.view.View;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
-public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSurfaceView.Renderer {
+public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSurfaceView.Renderer, View.OnClickListener {
 
     public XPlay(Context context, AttributeSet attrs) {
         super(context, attrs);
         //android 8.0 以上的版本需要添加该语句才能正常播放
         setRenderer(this);
+        setOnClickListener(this);
     }
 
     //每一次切换窗口surface都会销毁
@@ -48,4 +51,13 @@ public class XPlay extends GLSurfaceView implements SurfaceHolder.Callback, GLSu
     public void onDrawFrame(GL10 gl) {
 
     }
+
+
+    @Override
+    public void onClick(View v) {
+        Log.e("XPlay", "Pause");
+        playOrPause();
+    }
+
+    public native void playOrPause();
 }

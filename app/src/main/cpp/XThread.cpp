@@ -17,6 +17,8 @@ void XSleep(int ms){
 //启动线程
 bool XThread::start() {
     isExit = false;
+    isPause = false;
+    isPausing = false;
     thread th(&XThread::threadMain, this);
     //当前线程放弃对新建线程的控制, 防止对象被清空时, 新建线程出错
     th.detach();
@@ -42,6 +44,18 @@ void XThread::threadMain() {
     main();
     isRunning = false;
     XLOGI("线程函数退出");
+}
+
+void XThread::setPause(bool isPauseIn) {
+    isPause = isPauseIn;
+    //等待线程真正停下来
+    for (int i = 0; i < 10; ++i) {
+        if (isPausing == isPauseIn){
+            break;
+        }
+        XSleep(10);
+    }
+
 }
 
 

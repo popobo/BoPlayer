@@ -10,12 +10,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.content.pm.ActivityInfo;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Runnable, SeekBar.OnSeekBarChangeListener {
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Button button;
+    private SeekBar seekBar;
+    private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,47 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
+        seekBar = findViewById(R.id.aplayseek);
+        seekBar.setMax(1000);
+        seekBar.setOnSeekBarChangeListener(this);
+
+        //启动播放进度
+        new Thread(this).start();
+    }
+
+    //播放进入显示
+    @Override
+    public void run() {
+        for (;;){
+            seekBar.setProgress((int)(playPos() * 1000));
+            try {
+                Thread.sleep(40);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public native double playPos();
+
+    public native void seek(double pos);
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        seek((double) seekBar.getProgress()/(double)seekBar.getMax());
     }
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -72,8 +116,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
+
 }

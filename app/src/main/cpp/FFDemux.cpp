@@ -104,7 +104,7 @@ XData FFDemux::Read() {
         av_packet_free(&pkt);
         return XData();
     }
-    XLOGI("pack size %d pts %lld", pkt->size, pkt->pts);
+    //XLOGI("pack size %d pts %lld", pkt->size, pkt->pts);
     xData.data = (unsigned char*)pkt;
     xData.size = pkt->size;
 
@@ -147,6 +147,28 @@ void FFDemux::close() {
         avformat_close_input(&ic);
     }
     icMutex.unlock();
+}
+
+bool FFDemux::seek(double pos) {
+    if (pos < 0 || pos > 1){
+        XLOGE("seek value must 0.0-1.0");
+        return false;
+    }
+    bool re = false;
+    mux.lock();
+    if (!ic){
+        mux.unlock();
+        return false;
+    }
+    //清空读取的缓冲, read只取一帧, 缓冲中可能还有帧
+    avformat_flush(ic);
+    long long seekPts = 0;
+    seekPts = ic->streams[videoStream]->duration * pos;
+    //往后(进度条左边)跳转到关键帧
+    re = av_seek_frame(ic, videoStream, seekPts, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_BACKWARD);
+
+    mux.unlock();
+    return re;
 }
 
 

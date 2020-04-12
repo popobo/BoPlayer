@@ -16,6 +16,7 @@ public:
     //open和read不在同一个线程
     virtual bool open(const char *url);
     virtual void close();
+    virtual bool seek(double pos);
     //获取视频参数
     virtual XParameter getVPara();
     //获取音频频参数

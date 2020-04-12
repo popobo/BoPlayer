@@ -8,6 +8,11 @@
 //业务逻辑代码
 void IDecode::main() {
     while(!isExit){
+        //这边一调用isPaused, isPausing就更新和isPause一样,
+        if (isPaused()){
+            XSleep(1);
+            continue;
+        }
         xDataListMutex.lock();
         //判断音视频同步
         if (!isAudio && synPts > 0){

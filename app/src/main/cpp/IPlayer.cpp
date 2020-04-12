@@ -34,9 +34,9 @@ bool IPlayer::open(const char *url) {
         XLOGE("audioDecoder->open failed!");
     }
     //重采样有可能不需要, 解码后或者解封装后可能是直接能播放的数据
-    if (xParameterOut.sample_rate <= 0){
-        xParameterOut = demux->getAPara();
-    }
+//    if (xParameterOut.sample_rate <= 0){
+    xParameterOut = demux->getAPara();
+//    }
     if (!resample || !resample->open(demux->getAPara(), xParameterOut)){
         XLOGE("resample->open failed!");
     }
@@ -144,5 +144,50 @@ void IPlayer::close() {
     if(demux){
         demux->close();
     }
+    mux.unlock();
+}
+
+double IPlayer::playPos() {
+    double pos = 0.0;
+    int total = 0;
+    mux.lock();
+    if (demux){
+        total = demux->totalMs;
+    }
+    if (total > 0){
+        if (videoDecoder){
+            pos = videoDecoder->pts /(double)total;
+        }
+    }
+    mux.unlock();
+    return pos;
+}
+
+bool IPlayer::seek(double pos) {
+    bool re = false;
+    mux.lock();
+    if (demux) {
+        re = demux->seek(pos);
+    }
+    mux.unlock();
+    return re;
+}
+
+void IPlayer::setPause(bool isPauseIn) {
+    mux.lock();
+    XThread::setPause(isPauseIn);
+    if (demux){
+        demux->setPause(isPauseIn);
+    }
+    if (audioDecoder){
+        audioDecoder->setPause(isPauseIn);
+    }
+    if (videoDecoder){
+        videoDecoder->setPause(isPauseIn);
+    }
+    if (audioPlay){
+        audioPlay->setPause(isPauseIn);
+    }
+
     mux.unlock();
 }
