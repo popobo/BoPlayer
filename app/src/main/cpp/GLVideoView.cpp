@@ -7,7 +7,6 @@
 
 void GLVideoView::setRender(void *win) {
     view = win;
-
 }
 
 void GLVideoView::render(XData xData) {

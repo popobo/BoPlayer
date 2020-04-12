@@ -22,7 +22,7 @@ bool FFDemux::open(const char *url) {
         icMutex.unlock();
         char buf[1024] = {0};
         av_strerror(re, buf, sizeof(buf));
-        XLOGE("FFDemux open %s failed!", url);
+        XLOGE("FFDemux open %s failed! %s", url, buf);
         return false;
     }
     XLOGI("FFDemux open %s successfully!", url);
@@ -104,7 +104,7 @@ XData FFDemux::Read() {
         av_packet_free(&pkt);
         return XData();
     }
-//    XLOGI("pack size %d pts %lld", pkt->size, pkt->pts);
+    XLOGI("pack size %d pts %lld", pkt->size, pkt->pts);
     xData.data = (unsigned char*)pkt;
     xData.size = pkt->size;
 

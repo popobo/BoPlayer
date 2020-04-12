@@ -4,6 +4,7 @@
 
 #include "IPlayerProxy.h"
 #include "FFPlayerBuilder.h"
+#include "XLog.h"
 
 bool IPlayerProxy::open(const char *url) {
     bool re = false;

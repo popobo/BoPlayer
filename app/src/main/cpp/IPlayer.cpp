@@ -73,6 +73,8 @@ bool IPlayer::start() {
 
 void IPlayer::initView(void *win) {
     if (videoView){
+        //清理之后再重新set
+        videoView->close();
         videoView->setRender(win);
     }
 }

@@ -9,15 +9,7 @@ extern "C"
 JNIEXPORT
 jint JNI_OnLoad(JavaVM *vm, void *res){
 
-    ///////////////////////
     IPlayerProxy::get()->init(vm);
-
-    IPlayerProxy::get()->open("/sdcard/test.mp4");
-    IPlayerProxy::get()->start();
-
-    IPlayerProxy::get()->open("/sdcard/1080.mp4");
-    IPlayerProxy::get()->start();
-    ///////////////////////
 
     return JNI_VERSION_1_6;
 }
@@ -29,12 +21,16 @@ Java_com_bo_boplay_XPlay_initView(JNIEnv *env, jobject thiz, jobject surface) {
     IPlayerProxy::get()->initView(win);
 }
 
-extern "C" JNIEXPORT jstring JNICALL
-//这个函数可能被调用两次导致声音重音
-Java_com_bo_boplay_MainActivity_stringFromJNI(
-        JNIEnv *env,
-        jobject /* this */) {
-    std::string hello = "Hello from C++";
 
-    return env->NewStringUTF(hello.c_str());
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bo_boplay_OpenUrl_open(JNIEnv *env, jobject thiz, jstring url) {
+
+    const char *curl = env->GetStringUTFChars(url, 0);
+
+    IPlayerProxy::get()->open(curl);
+
+    IPlayerProxy::get()->start();
+
+    env->ReleaseStringUTFChars(url, curl);
 }
